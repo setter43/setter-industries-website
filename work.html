@@ -217,6 +217,12 @@ footer{background:var(--brand);padding:36px 40px;border-top:1px solid rgba(201,1
 .demo-caption{padding:8px 18px;background:rgba(8,15,30,0.6);font-size:11px;color:var(--grey);}
 .sfab-wrap iframe{width:100%;height:380px;border:0;display:block;}
 
+
+.ifrm-wrap iframe#fr-dcm{height:760px;}
+.tile.open .ifrm-wrap iframe#fr-dcm{height:760px;min-height:760px;}
+@media(max-width:900px){.tile.open .ifrm-wrap iframe#fr-dcm,.ifrm-wrap iframe#fr-dcm{height:720px;min-height:0;}}
+@media(max-width:480px){.tile.open .ifrm-wrap iframe#fr-dcm,.ifrm-wrap iframe#fr-dcm{height:660px;}}
+
 /* Sketchfab note */
 .sfab-hdr{padding:11px 18px;background:var(--navy);border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:9px;}
 .sfab-hdr h4{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--white);}
@@ -341,8 +347,16 @@ footer{background:var(--brand);padding:36px 40px;border-top:1px solid rgba(201,1
           <div class="tile-panel">
             <div class="tile-panel-inner">
               <div class="tile-panel-actions"><button type="button" class="tile-collapse" aria-label="Minimise project details">Minimise</button></div>
-              <p>A mobile-first casualty management and reporting application for field conditions without network connectivity. Covers DRSABCD assessment, Adult Triage Sieve, 14 condition-specific treatment protocols, multi-casualty handling, automated MIST and 9-Liner handover generation, and what3words location integration.</p>
-              <p>Aligned to NHS UK, St John Ambulance UK, and Resuscitation Council UK clinical standards. Suitable for military and civilian emergency response. An embedded interactive demo will be available here in a future release.</p>
+              <p>A mobile-first battlefield casualty management and reporting application for field conditions without network connectivity. It supports structured casualty capture, triage priority ordering, guided treatment drills, automated casualty reporting, and 9-Line MEDEVAC generation.</p>
+              <p>The embedded demo below shows the casualty workflow from point of injury through to treatment order, guided treatment support, and MEDEVAC request generation.</p>
+              <div class="demo-blk">
+                <div class="demo-blk-hdr">
+                  <h4>Battlefield Casualty Management Demonstrator</h4>
+                  <div class="demo-badges"><span class="dbadge">Smart Field Tool</span><span class="dbadge dbadge-blue">Automated 9-Liner</span><span class="dbadge dbadge-amber">Prototype</span></div>
+                </div>
+                <div class="ifrm-wrap"><iframe id="fr-dcm" title="Battlefield Casualty Management Demo" src="dcm_demo.html" loading="lazy" allowfullscreen></iframe></div>
+                <div class="demo-caption">Interactive visual demonstrator showing casualty capture, triage, treatment guidance and MEDEVAC request generation.</div>
+              </div>
             </div>
           </div>
         </div>
@@ -584,12 +598,16 @@ document.querySelectorAll('.tile-collapse').forEach(function(btn){
 });
 
 
-// External Battlefield Image Recognition demo embed
-// Keep setter_tis_demo.html in the same GitHub folder as work.html so Netlify can load it.
+// External project demo embeds
+// Keep setter_tis_demo.html and dcm_demo.html in the same GitHub folder as work.html so Netlify can load them.
 (function(){
-  ['fr-imgrec'].forEach(function(id){
+  var embeds = {
+    'fr-imgrec':'setter_tis_demo.html',
+    'fr-dcm':'dcm_demo.html'
+  };
+  Object.keys(embeds).forEach(function(id){
     var fr=document.getElementById(id);
-    if(fr && !fr.getAttribute('src')) fr.setAttribute('src','setter_tis_demo.html');
+    if(fr && !fr.getAttribute('src')) fr.setAttribute('src',embeds[id]);
   });
 })();
 </script>

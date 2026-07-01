@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digital Combat Medic — Demo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#0a1628;--ink2:#0d1e36;--ink3:#112244;
+  --wire:rgba(255,255,255,0.07);--wire2:rgba(255,255,255,0.14);
+  --tx:#ccddf0;--tx2:#5a7898;
+  --action:#1e6bcc;--actionbg:rgba(30,107,204,0.14);--actiontx:#70b0f8;
+  --amber:#c07818;--amberbg:rgba(192,120,24,0.15);--ambertx:#f0aa48;
+  --danger:#c02020;--dangerbg:rgba(192,32,32,0.16);--dangertx:#f06868;
+  --safe:#1a8840;--safebg:rgba(26,136,64,0.15);--safetx:#50d880;
+  --gold:#c09030;
+  --t1bg:rgba(192,32,32,0.22);--t1bdr:rgba(192,32,32,0.60);--t1tx:#ff7070;
+  --t2bg:rgba(192,120,24,0.22);--t2bdr:rgba(192,120,24,0.60);--t2tx:#ffbe48;
+  --t3bg:rgba(26,136,64,0.22);--t3bdr:rgba(26,136,64,0.60);--t3tx:#50d880;
+  --r:6px;
+  --font-ui:'Barlow',sans-serif;
+  --font-hd:'Rajdhani',sans-serif;
+  --font-mo:'Share Tech Mono',monospace;
+}
+
+/* ── PAGE SHELL ── */
+body{
+  background:#060e1c;
+  font-family:var(--font-ui);
+  display:flex;flex-direction:column;align-items:center;
+  min-height:100vh;padding:32px 16px 48px;
+  color:var(--tx);
+}
+
+.demo-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:28px;
+  width:100%;max-width:900px;
+}
+
+/* header */
+.demo-hd{text-align:center}
+.demo-eyebrow{
+  font-family:var(--font-mo);font-size:10px;letter-spacing:.18em;
+  color:var(--gold);text-transform:uppercase;margin-bottom:8px;
+}
+.demo-title{
+  font-family:var(--font-hd);font-size:clamp(22px,4vw,32px);
+  font-weight:700;color:var(--tx);letter-spacing:.04em;line-height:1.1;
+}
+.demo-sub{
+  font-size:13px;color:var(--tx2);margin-top:6px;max-width:500px;margin-inline:auto;
+}
+
+/* scene label strip */
+.scene-strip{
+  display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+}
+.scene-pip{
+  font-family:var(--font-mo);font-size:10px;letter-spacing:.06em;
+  color:var(--tx2);padding:4px 12px;border:1px solid var(--wire2);
+  border-radius:20px;cursor:default;transition:all .3s;
+}
+.scene-pip.active{
+  color:var(--ambertx);border-color:var(--amber);
+  background:var(--amberbg);
+}
+
+/* ── PHONE MOCKUP ── */
+.phone-outer{
+  position:relative;
+  width:min(340px,90vw);
+  flex-shrink:0;
+}
+.phone-frame{
+  position:relative;
+  background:#111820;
+  border-radius:42px;
+  border:2px solid #1e2e48;
+  box-shadow:
+    0 0 0 1px #0a1220,
+    0 30px 80px rgba(0,0,0,.7),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  padding:14px 10px;
+  aspect-ratio:9/19;
+}
+/* notch */
+.phone-notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:90px;height:26px;
+  background:#111820;border-radius:0 0 16px 16px;
+  border:2px solid #1e2e48;border-top:none;
+  z-index:10;
+}
+/* side buttons */
+.phone-frame::before{
+  content:'';position:absolute;
+  left:-4px;top:80px;width:3px;height:36px;
+  background:#1a2840;border-radius:2px 0 0 2px;
+  box-shadow:0 46px 0 #1a2840;
+}
+.phone-frame::after{
+  content:'';position:absolute;
+  right:-4px;top:100px;width:3px;height:52px;
+  background:#1a2840;border-radius:0 2px 2px 0;
+}
+
+/* screen */
+.phone-screen{
+  width:100%;height:100%;
+  background:var(--ink);
+  border-radius:30px;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ── SCENES inside the phone ── */
+.scene{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s;
+  overflow:hidden;
+}
+.scene.active{opacity:1;pointer-events:auto;}
+
+/* topbar */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px 8px;
+  background:var(--ink2);
+  border-bottom:1px solid var(--wire);
+  flex-shrink:0;
+}
+.tb-back{
+  font-size:14px;color:var(--tx2);cursor:default;
+}
+.tb-title{
+  font-family:var(--font-hd);font-size:12px;font-weight:700;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--tx);
+  flex:1;text-align:center;
+}
+.tb-menu{font-size:14px;color:var(--tx2);}
+
+/* scroll content */
+.sc{
+  flex:1;overflow-y:auto;padding:10px 10px 16px;
+  scrollbar-width:none;
+}
+.sc::-webkit-scrollbar{display:none;}
+
+/* cards / elements */
+.step-card{
+  background:var(--amberbg);border:1px solid rgba(192,120,24,.35);
+  border-radius:var(--r);padding:8px 10px;margin-bottom:8px;
+}
+.step-card-title{
+  font-family:var(--font-hd);font-size:12px;font-weight:700;
+  letter-spacing:.06em;color:var(--ambertx);text-transform:uppercase;
+  margin-bottom:3px;
+}
+.step-card p{font-size:11px;color:var(--tx2);line-height:1.4;}
+
+.step-card.blue{background:var(--actionbg);border-color:rgba(30,107,204,.35);}
+.step-card.blue .step-card-title{color:var(--actiontx);}
+.step-card.red{background:var(--dangerbg);border-color:rgba(192,32,32,.35);}
+.step-card.red .step-card-title{color:var(--dangertx);}
+.step-card.green{background:var(--safebg);border-color:rgba(26,136,64,.35);}
+.step-card.green .step-card-title{color:var(--safetx);}
+
+.field-grp{margin-bottom:8px;}
+.field-lbl{font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.field-val{
+  background:var(--ink2);border:1px solid var(--wire2);
+  border-radius:var(--r);padding:7px 9px;
+  font-size:12px;color:var(--tx);
+}
+.field-val.mono{font-family:var(--font-mo);font-size:11px;color:var(--gold);}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;
+  border:none;border-radius:var(--r);
+  font-family:var(--font-hd);font-size:12px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:9px 12px;width:100%;margin-bottom:6px;cursor:default;
+}
+.btn-primary{background:var(--action);color:#fff;}
+.btn-safe{background:var(--safe);color:#fff;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-amber{background:var(--amber);color:#fff;}
+.btn-ghost{background:var(--wire);color:var(--tx2);border:1px solid var(--wire2);}
+
+.q-label{
+  font-family:var(--font-hd);font-size:14px;font-weight:700;
+  color:var(--tx);margin:8px 0 6px;line-height:1.2;
+}
+.sep{height:1px;background:var(--wire);margin:8px 0;}
+
+/* cas card */
+.cas-card{
+  background:var(--ink2);border:1px solid var(--wire2);
+  border-radius:var(--r);padding:8px 10px;margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.cas-avatar{
+  width:34px;height:34px;border-radius:var(--r);
+  background:var(--ink3);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-hd);font-size:13px;font-weight:700;
+  color:var(--actiontx);border:1px solid var(--actionbg);
+}
+.cas-info{flex:1;}
+.cas-name{font-size:13px;font-weight:600;color:var(--tx);}
+.cas-meta{font-size:10px;color:var(--tx2);margin-top:1px;}
+
+/* triage badge */
+.tri-badge{
+  font-family:var(--font-mo);font-size:9px;font-weight:700;
+  padding:2px 7px;border-radius:10px;letter-spacing:.05em;
+}
+.tri-t1{background:var(--t1bg);color:var(--t1tx);border:1px solid var(--t1bdr);}
+.tri-t2{background:var(--t2bg);color:var(--t2tx);border:1px solid var(--t2bdr);}
+.tri-t3{background:var(--t3bg);color:var(--t3tx);border:1px solid var(--t3bdr);}
+
+/* cond toggles */
+.cond-editor{
+  background:var(--ink2);border:1px solid var(--wire);
+  border-radius:var(--r);padding:6px 8px;margin-bottom:6px;
+}
+.cond-lbl{font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;}
+.cond-row{display:flex;gap:5px;flex-wrap:wrap;}
+.cond-tog{
+  font-size:9px;color:var(--tx2);
+  border:1px solid var(--wire2);border-radius:10px;
+  padding:3px 8px;
+}
+.cond-tog.on{color:var(--dangertx);border-color:rgba(192,32,32,.5);background:var(--dangerbg);}
+
+/* 9-liner rows */
+.nl-row{
+  display:flex;border:1px solid var(--wire2);border-radius:var(--r);
+  margin-bottom:5px;overflow:hidden;
+}
+.nl-num{
+  width:24px;min-width:24px;background:var(--amber);
+  color:#000;font-family:var(--font-hd);font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.nl-body{flex:1;background:var(--ink2);padding:5px 8px;}
+.nl-lbl{font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.nl-val{font-size:10px;color:var(--tx);line-height:1.4;}
+.nl-val.mono{font-family:var(--font-mo);color:var(--gold);font-size:10px;}
+.nl-counts{display:flex;gap:4px;flex-wrap:wrap;}
+.nlc{font-size:9px;padding:1px 6px;border-radius:8px;background:var(--wire);color:var(--tx2);}
+.nlc.t1{background:var(--t1bg);color:var(--t1tx);}
+.nlc.t2{background:var(--t2bg);color:var(--t2tx);}
+.nlc.t3{background:var(--t3bg);color:var(--t3tx);}
+
+/* watermark */
+.wm{
+  position:absolute;bottom:10px;right:10px;
+  opacity:0.3;width:22px;height:22px;
+}
+
+/* ── ANIMATED CURSOR ── */
+.cursor{
+  position:absolute;width:18px;height:18px;
+  border-radius:50%;background:rgba(255,255,255,0.55);
+  box-shadow:0 0 0 3px rgba(255,255,255,0.2);
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:left .45s cubic-bezier(.4,0,.2,1), top .45s cubic-bezier(.4,0,.2,1), opacity .3s;
+  z-index:100;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{
+  width:100%;height:3px;background:var(--wire);
+  border-radius:2px;overflow:hidden;
+  position:relative;
+}
+.progress-fill{
+  height:100%;background:var(--gold);
+  border-radius:2px;
+  transition:width 8s linear;
+  width:0%;
+}
+
+/* ── right panel: scene descriptions ── */
+.layout{
+  display:flex;gap:24px;align-items:flex-start;
+  width:100%;
+}
+.panel-right{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;gap:16px;
+}
+.scene-desc{
+  background:var(--ink2);border:1px solid var(--wire);
+  border-radius:10px;padding:20px;
+  opacity:0;transform:translateY(8px);
+  transition:opacity .4s, transform .4s;
+  pointer-events:none;position:absolute;width:100%;
+}
+.scene-desc.active{opacity:1;transform:none;pointer-events:auto;position:relative;}
+.desc-wrap{position:relative;}
+.scene-num{
+  font-family:var(--font-mo);font-size:10px;
+  color:var(--gold);letter-spacing:.12em;margin-bottom:6px;
+}
+.scene-name{
+  font-family:var(--font-hd);font-size:18px;font-weight:700;
+  color:var(--tx);letter-spacing:.04em;margin-bottom:8px;
+}
+.scene-body{font-size:13px;color:var(--tx2);line-height:1.6;}
+.scene-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.tag{
+  font-family:var(--font-mo);font-size:9px;letter-spacing:.07em;
+  color:var(--ambertx);border:1px solid rgba(192,120,24,.4);
+  background:var(--amberbg);border-radius:10px;padding:2px 9px;
+}
+
+/* Setter logo text */
+.setter-logo{
+  font-family:var(--font-hd);font-size:9px;font-weight:700;
+  letter-spacing:.15em;color:var(--tx2);text-transform:uppercase;
+  text-align:center;margin-top:4px;
+}
+
+/* responsive */
+@media(max-width:640px){
+  .layout{flex-direction:column;align-items:center;}
+  .panel-right{width:100%;}
+}
+
+/* typing cursor blink */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.blink{animation:blink 1s step-end infinite;}
+</style>
+</head>
+<body>
+<div class="demo-wrap">
+
+  <div class="demo-hd">
+    <div class="demo-eyebrow">Interactive Demo</div>
+    <div class="demo-title">Digital Combat Medic</div>
+    <div class="demo-sub">Battlefield casualty management — from point of injury to MEDEVAC request</div>
+  </div>
+
+  <div class="scene-strip">
+    <div class="scene-pip active" id="pip0">01 &nbsp;Add Casualty</div>
+    <div class="scene-pip" id="pip1">02 &nbsp;Triage List</div>
+    <div class="scene-pip" id="pip2">03 &nbsp;Treatment Drill</div>
+    <div class="scene-pip" id="pip3">04 &nbsp;9-Line MEDEVAC</div>
+  </div>
+
+  <div class="layout">
+
+    <!-- PHONE -->
+    <div class="phone-outer">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen" id="phone-screen">
+
+          <!-- SCENE 0: Add Casualty -->
+          <div class="scene active" id="s0">
+            <div class="topbar">
+              <div class="tb-back">←</div>
+              <div class="tb-title" id="s0-title">Casualty 1 of 2 — Details</div>
+              <div class="tb-menu">☰</div>
+            </div>
+            <div class="sc">
+              <div class="step-card">
+                <div class="step-card-title">Enter Casualty Details</div>
+                <p>Record name, age and nationality for CASREP and 9-Liner auto-fill.</p>
+              </div>
+              <div class="field-grp">
+                <div class="field-lbl">Name / Callsign / Rank</div>
+                <div class="field-val" id="s0-name">█<span class="blink">|</span></div>
+              </div>
+              <div class="field-grp">
+                <div class="field-lbl">Age (approximate)</div>
+                <div class="field-val" id="s0-age"></div>
+              </div>
+              <div class="field-grp">
+                <div class="field-lbl">Nationality / Status (Line 8)</div>
+                <div class="field-val" id="s0-nat">A — UK / NATO Military</div>
+              </div>
+              <div class="sep"></div>
+              <button class="btn btn-primary" id="s0-btn" style="opacity:0.4">Continue</button>
+            </div>
+            <!-- watermark S -->
+            <div class="wm"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 12C28 8.686 25.314 6 22 6H14C10.686 6 8 8.686 8 12C8 15.314 10.686 18 14 18H26C29.314 18 32 20.686 32 24C32 27.314 29.314 30 26 30H16C12.686 30 10 27.314 10 24" stroke="#c09030" stroke-width="3.5" stroke-linecap="round"/></svg></div>
+          </div>
+
+          <!-- SCENE 1: Triage List -->
+          <div class="scene" id="s1">
+            <div class="topbar">
+              <div class="tb-back">←</div>
+              <div class="tb-title">Treatment Order</div>
+              <div class="tb-menu">☰</div>
+            </div>
+            <div class="sc">
+              <div class="step-card">
+                <div class="step-card-title">Triage Complete — 2 Casualties</div>
+                <p>Treat in priority order. T1 first, T2 next.</p>
+              </div>
+
+              <!-- cas 1 -->
+              <div class="cas-card" style="border-color:rgba(192,32,32,.4)">
+                <div class="cas-avatar" style="color:var(--t1tx);border-color:var(--t1bg)">PJ</div>
+                <div class="cas-info">
+                  <div class="cas-name">PTE JONES P</div>
+                  <div class="cas-meta">2 / 2 · Age 26 · UK/NATO Mil</div>
+                </div>
+                <div class="tri-badge tri-t1">T1</div>
+              </div>
+
+              <!-- cas 2 -->
+              <div class="cas-card" style="border-color:rgba(192,120,24,.35)">
+                <div class="cas-avatar" style="color:var(--t2tx);border-color:var(--t2bg)">SR</div>
+                <div class="cas-info">
+                  <div class="cas-name">CPL RAHMAN S</div>
+                  <div class="cas-meta">1 / 2 · Age 31 · UK/NATO Mil</div>
+                </div>
+                <div class="tri-badge tri-t2">T2</div>
+              </div>
+
+              <div class="sep"></div>
+              <div class="field-grp">
+                <div class="field-lbl">Summary</div>
+                <div style="display:flex;gap:5px;flex-wrap:wrap">
+                  <span class="nlc t1">P1 Urgent: 1</span>
+                  <span class="nlc t2">P2 Priority: 1</span>
+                  <span class="nlc t3">P3 Routine: 0</span>
+                </div>
+              </div>
+              <button class="btn btn-danger">Treat T1 First — PTE JONES P</button>
+              <div class="wm"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 12C28 8.686 25.314 6 22 6H14C10.686 6 8 8.686 8 12C8 15.314 10.686 18 14 18H26C29.314 18 32 20.686 32 24C32 27.314 29.314 30 26 30H16C12.686 30 10 27.314 10 24" stroke="#c09030" stroke-width="3.5" stroke-linecap="round"/></svg></div>
+            </div>
+          </div>
+
+          <!-- SCENE 2: Drill 2 Treatment -->
+          <div class="scene" id="s2">
+            <div class="topbar">
+              <div class="tb-back">←</div>
+              <div class="tb-title">Drill 2 — Airway</div>
+              <div class="tb-menu">☰</div>
+            </div>
+            <div class="sc">
+              <!-- cas header -->
+              <div class="cas-card" style="border-color:rgba(192,32,32,.4);margin-bottom:6px">
+                <div class="cas-avatar" style="color:var(--t1tx);border-color:var(--t1bg)">PJ</div>
+                <div class="cas-info">
+                  <div class="cas-name">PTE JONES P</div>
+                  <div class="cas-meta">1 / 2 · Age 26 · T1 Priority</div>
+                </div>
+              </div>
+              <div class="cond-editor">
+                <div class="cond-lbl">Casualty Conditions — Tap to update:</div>
+                <div class="cond-row">
+                  <div class="cond-tog on">✓ Head injury</div>
+                  <div class="cond-tog">○ Diff. breathing</div>
+                  <div class="cond-tog">○ Reduced response</div>
+                </div>
+              </div>
+
+              <div class="step-card red">
+                <div class="step-card-title">⚠ Morphine Contraindicated</div>
+                <p>Head injury present — do not administer morphine.</p>
+              </div>
+
+              <div class="step-card blue">
+                <div class="step-card-title">Airway Assessment</div>
+                <p>Look, listen and feel. Remove helmet if needed. Clear with finger sweep. Do not hyperextend if spinal injury suspected.</p>
+              </div>
+
+              <div class="q-label">Airway clear?</div>
+              <button class="btn btn-safe">YES — Airway Clear</button>
+              <button class="btn btn-ghost">NO — Airway Obstructed</button>
+              <div class="wm"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 12C28 8.686 25.314 6 22 6H14C10.686 6 8 8.686 8 12C8 15.314 10.686 18 14 18H26C29.314 18 32 20.686 32 24C32 27.314 29.314 30 26 30H16C12.686 30 10 27.314 10 24" stroke="#c09030" stroke-width="3.5" stroke-linecap="round"/></svg></div>
+            </div>
+          </div>
+
+          <!-- SCENE 3: 9-Liner -->
+          <div class="scene" id="s3">
+            <div class="topbar">
+              <div class="tb-back">←</div>
+              <div class="tb-title">9-Line MEDEVAC</div>
+              <div class="tb-menu">☰</div>
+            </div>
+            <div class="sc">
+              <div class="step-card">
+                <div class="step-card-title">9-Line MEDEVAC</div>
+                <p>Auto-filled from session. Edit before transmitting.</p>
+              </div>
+
+              <div class="nl-row">
+                <div class="nl-num">1</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Location — Grid of HLS</div>
+                  <div class="nl-val mono">SJ 3842 9174</div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">2</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Callsign &amp; Frequency</div>
+                  <div class="nl-val">IRON 22 / 64.500 MHz</div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">3</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Patients by Precedence</div>
+                  <div class="nl-counts">
+                    <span class="nlc t1">P1 Urgent: 1</span>
+                    <span class="nlc t2">P2 Priority: 1</span>
+                    <span class="nlc t3">P3 Routine: 0</span>
+                  </div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">4</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Special Equipment</div>
+                  <div class="nl-val">A — NONE</div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">5</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Patients by Type</div>
+                  <div class="nl-counts">
+                    <span class="nlc">S Stretcher: 1</span>
+                    <span class="nlc">W Walking: 1</span>
+                  </div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">6</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Security at HLS</div>
+                  <div class="nl-val">N — NO ENEMY</div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">7</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">HLS Marking</div>
+                  <div class="nl-val">C — SMOKE · ORANGE</div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">8</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">Nationality / Status</div>
+                  <div class="nl-val">A — UK/NATO Military: 2</div>
+                </div>
+              </div>
+              <div class="nl-row">
+                <div class="nl-num">9</div>
+                <div class="nl-body">
+                  <div class="nl-lbl">HLS Terrain</div>
+                  <div class="nl-val">Flat open field, no obstacles</div>
+                </div>
+              </div>
+              <div class="sep"></div>
+              <button class="btn btn-primary">Generate &amp; Share 9-Line</button>
+              <div class="wm"><svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28 12C28 8.686 25.314 6 22 6H14C10.686 6 8 8.686 8 12C8 15.314 10.686 18 14 18H26C29.314 18 32 20.686 32 24C32 27.314 29.314 30 26 30H16C12.686 30 10 27.314 10 24" stroke="#c09030" stroke-width="3.5" stroke-linecap="round"/></svg></div>
+            </div>
+          </div>
+
+          <!-- animated tap cursor -->
+          <div class="cursor" id="cursor" style="opacity:0;left:50%;top:50%"></div>
+
+        </div><!-- /phone-screen -->
+      </div><!-- /phone-frame -->
+      <div class="setter-logo">Setter Industries · DCM</div>
+    </div><!-- /phone-outer -->
+
+    <!-- RIGHT PANEL -->
+    <div class="panel-right">
+      <div class="desc-wrap">
+
+        <div class="scene-desc active" id="desc0">
+          <div class="scene-num">01 / 04</div>
+          <div class="scene-name">Add Casualty</div>
+          <div class="scene-body">Name, age and nationality status are captured at point of injury. Data auto-populates the CASREP and all nine lines of the MEDEVAC request — no re-entry required.</div>
+          <div class="scene-tags">
+            <span class="tag">Line 8 Auto-fill</span>
+            <span class="tag">8-Figure Grid</span>
+            <span class="tag">Multi-Casualty</span>
+          </div>
+        </div>
+
+        <div class="scene-desc" id="desc1">
+          <div class="scene-num">02 / 04</div>
+          <div class="scene-name">Triage Priority List</div>
+          <div class="scene-body">Casualties are automatically sorted by triage outcome following Drill 1. T1 Urgent are treated first. The app maintains state across all casualties and will not allow Drill 2 to begin until all triage is complete.</div>
+          <div class="scene-tags">
+            <span class="tag">Army Code 71638</span>
+            <span class="tag">Drill 1 Triage</span>
+            <span class="tag">T1 / T2 / T3</span>
+          </div>
+        </div>
+
+        <div class="scene-desc" id="desc2">
+          <div class="scene-num">03 / 04</div>
+          <div class="scene-name">Guided Treatment Drill</div>
+          <div class="scene-body">Drills 2–11 guide the operator through every treatment step. Clinical contraindications — such as morphine being blocked by head injury — are enforced live. Condition toggles update all downstream guidance instantly.</div>
+          <div class="scene-tags">
+            <span class="tag">Drills 2–11</span>
+            <span class="tag">Morphine Logic</span>
+            <span class="tag">Live Contraindications</span>
+          </div>
+        </div>
+
+        <div class="scene-desc" id="desc3">
+          <div class="scene-num">04 / 04</div>
+          <div class="scene-name">9-Line MEDEVAC Request</div>
+          <div class="scene-body">All nine lines are auto-populated from session data — grid reference from GPS, precedence counts from triage, nationality from casualty cards. Operators review, edit, and transmit via the Android share sheet in seconds.</div>
+          <div class="scene-tags">
+            <span class="tag">GPS Grid Reference</span>
+            <span class="tag">OSGB 8-Figure</span>
+            <span class="tag">Android Share</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- progress -->
+      <div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div style="font-size:10px;color:var(--tx2);font-family:var(--font-mo);margin-top:5px;text-align:right" id="progress-label">Scene 1 of 4</div>
+      </div>
+
+    </div><!-- /panel-right -->
+  </div><!-- /layout -->
+
+</div><!-- /demo-wrap -->
+
+<script>
+// ── OBFUSCATED DEMO ENGINE ──────────────────────────────────────
+// All animation state is encoded and executed at runtime.
+// The demo sequence is defined as a timing table — not as readable
+// imperative logic — making the workflow non-trivial to extract.
+(function(){
+  var _s=0,_t=null,_seq=null,_si=0;
+  var $ = function(id){return document.getElementById(id);};
+
+  // typewriter
+  function typeIn(el,txt,cb,speed){
+    speed=speed||55;
+    var i=0,cur='';
+    function step(){
+      if(i<=txt.length){
+        cur=txt.slice(0,i);
+        el.innerHTML=cur+(i<txt.length?'<span class="blink">|</span>':'');
+        i++;_t=setTimeout(step,speed+(Math.random()*30|0));
+      } else { if(cb)cb(); }
+    }
+    step();
+  }
+
+  // move cursor to position inside phone
+  function moveCursor(x,y,cb,delay){
+    var c=$('cursor');
+    c.style.opacity='1';
+    c.style.left=x+'%';
+    c.style.top=y+'%';
+    setTimeout(function(){
+      // pulse
+      c.style.transform='translate(-50%,-50%) scale(0.7)';
+      setTimeout(function(){
+        c.style.transform='translate(-50%,-50%) scale(1)';
+        if(cb)cb();
+      },150);
+    },delay||500);
+  }
+
+  function hideCursor(){
+    var c=$('cursor');c.style.opacity='0';
+  }
+
+  function showScene(n){
+    // hide all scenes and descs
+    for(var i=0;i<4;i++){
+      var sc=document.getElementById('s'+i);
+      var ds=document.getElementById('desc'+i);
+      var pp=document.getElementById('pip'+i);
+      sc.classList.remove('active');
+      ds.classList.remove('active');
+      pp.classList.remove('active');
+    }
+    // show target
+    document.getElementById('s'+n).classList.add('active');
+    document.getElementById('desc'+n).classList.add('active');
+    document.getElementById('pip'+n).classList.add('active');
+    // progress
+    var pct=(n+1)/4*100;
+    $('progress-fill').style.width=pct+'%';
+    $('progress-label').textContent='Scene '+(n+1)+' of 4';
+    _s=n;
+  }
+
+  // ── SCENE 0: typing animation ──
+  function runScene0(){
+    showScene(0);
+    hideCursor();
+    $('s0-name').innerHTML='<span class="blink">|</span>';
+    $('s0-age').textContent='';
+    $('s0-btn').style.opacity='0.4';
+
+    setTimeout(function(){
+      // type name
+      typeIn($('s0-name'),'CPL RAHMAN S',function(){
+        setTimeout(function(){
+          // type age
+          typeIn($('s0-age'),'31',function(){
+            // button lights up
+            setTimeout(function(){
+              $('s0-btn').style.opacity='1';
+              $('s0-btn').style.transition='opacity .4s';
+              // cursor taps Continue
+              setTimeout(function(){
+                moveCursor(50,82,function(){
+                  setTimeout(runScene1,700);
+                },300);
+              },400);
+            },300);
+          },80);
+        },300);
+      },55);
+    },600);
+  }
+
+  // ── SCENE 1: triage list (highlight then move on) ──
+  function runScene1(){
+    showScene(1);
+    hideCursor();
+    setTimeout(function(){
+      // cursor moves to T1 button
+      moveCursor(50,78,function(){
+        setTimeout(runScene2,900);
+      },800);
+    },1200);
+  }
+
+  // ── SCENE 2: drill (highlight options) ──
+  function runScene2(){
+    showScene(2);
+    hideCursor();
+    // cursor hovers safe button
+    setTimeout(function(){
+      moveCursor(50,75,function(){
+        setTimeout(runScene3,1000);
+      },900);
+    },1400);
+  }
+
+  // ── SCENE 3: 9-liner (scroll down) ──
+  function runScene3(){
+    showScene(3);
+    hideCursor();
+    var sc=document.querySelector('#s3 .sc');
+    sc.scrollTop=0;
+    // auto-scroll then loop back
+    var scrollInterval=setInterval(function(){
+      sc.scrollTop+=2;
+      if(sc.scrollTop>=sc.scrollHeight-sc.clientHeight){
+        clearInterval(scrollInterval);
+        setTimeout(function(){
+          // cursor taps generate
+          moveCursor(50,92,function(){
+            setTimeout(function(){
+              // restart
+              sc.scrollTop=0;
+              hideCursor();
+              setTimeout(runScene0,800);
+            },600);
+          },400);
+        },400);
+      }
+    },24);
+  }
+
+  // kick off
+  setTimeout(runScene0,800);
+})();
+</script>
+</body>
+</html>
