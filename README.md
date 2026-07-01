@@ -1,7 +1,5 @@
 # Setter Industries Website v1.0
 
-This is the tidied v1.0 project structure for the Setter Industries website.
-
 ## Structure
 
 ```text
@@ -29,10 +27,3 @@ setter-industries-website/
 └── README.md
 ```
 
-## Deployment notes
-
-Upload all files and folders to GitHub exactly as shown. Netlify should continue to use `index.html` from the repository root.
-
-The logo references now point to transparent PNG files in `assets/images/` rather than embedded Base64 images.
-
-The interactive demos now live in `assets/demos/` and are embedded from the Our Work page.
