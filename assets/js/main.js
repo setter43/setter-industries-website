@@ -171,3 +171,28 @@ document.querySelectorAll('.tile-collapse').forEach(function(btn){
     });
   }
 })();
+
+
+// Shared company information and contact form
+document.addEventListener('DOMContentLoaded',function(){
+  var cfg=window.SETTER_SITE_CONFIG||{};
+  document.querySelectorAll('[data-current-year]').forEach(function(el){el.textContent=new Date().getFullYear();});
+  document.querySelectorAll('[data-business-phone]').forEach(function(el){
+    if(cfg.businessPhoneDisplay){
+      if(cfg.businessPhoneLink){var a=document.createElement('a');a.href='tel:'+cfg.businessPhoneLink;a.textContent=cfg.businessPhoneDisplay;el.replaceChildren(a);}
+      else el.textContent=cfg.businessPhoneDisplay;
+    }else if(!el.textContent.trim()){el.hidden=true;}
+  });
+  if(cfg.companyNumber){
+    document.querySelectorAll('[data-company-number]').forEach(function(el){el.textContent=cfg.companyNumber;});
+    document.querySelectorAll('[data-company-number-wrap]').forEach(function(el){el.hidden=false;});
+  }
+  var form=document.getElementById('contactForm');
+  if(form){form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var val=function(id){return (document.getElementById(id)||{}).value||'';};
+    var subject='Website enquiry: '+val('enquiryType');
+    var body=['Name: '+val('firstName')+' '+val('lastName'),'Organisation: '+val('organisation'),'Reply email: '+val('email'),'Enquiry type: '+val('enquiryType'),'','High-level summary:',''+val('message')].join('\n');
+    window.location.href='mailto:'+(cfg.businessEmail||'contact@setterindustries.co.uk')+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  });}
+});

@@ -1,29 +1,26 @@
-# Setter Industries Website v1.0
+# Setter Industries Website v2.0
 
-## Structure
+Static HTML, CSS and JavaScript website prepared for GitHub Pages.
 
-```text
-setter-industries-website/
-├── index.html
-├── about.html
-├── services.html
-├── work.html
-├── careers.html
-├── contact.html
-├── assets/
-│   ├── css/
-│   │   └── styles.css
-│   ├── js/
-│   │   └── main.js
-│   ├── images/
-│   │   ├── si-logo-full.png
-│   │   ├── si-logo-icon.png
-│   │   ├── sword-at.png
-│   │   ├── sword-attack.png
-│   │   └── sword-ambush.png
-│   └── demos/
-│       ├── setter_tis_demo.html
-│       └── dcm_demo.html
-└── README.md
+## Before publishing
+
+Edit `assets/js/site-config.js` and enter the Google Voice number and Companies House number. Empty values are hidden automatically.
+
+## Local preview
+
+From the project folder:
+
+```bash
+python -m http.server 8000
 ```
 
+Open `http://localhost:8000`.
+
+## Publish with Git
+
+```bash
+git status
+git add .
+git commit -m "Release procurement-ready website v2.0"
+git push origin main
+```
