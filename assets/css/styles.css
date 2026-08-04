@@ -930,3 +930,64 @@ img[src*="si-logo"]{
 .work-ip-notice p + p {
   margin-top: 1rem;
 }
+
+
+/* ===== Premium Link Styling ===== */
+.info-card a,
+.notice-panel a,
+.footer-columns a,
+.contact-info a,
+.contact-method a,
+dd a,
+p a{
+    color: var(--gold);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color .25s ease,border-color .25s ease;
+}
+.info-card a:hover,
+.notice-panel a:hover,
+.footer-columns a:hover,
+.contact-info a:hover,
+.contact-method a:hover,
+dd a:hover,
+p a:hover{
+    color:#ffffff;
+    border-bottom-color:var(--gold);
+}
+.footer-columns a{
+    display:block;
+    margin-bottom:.55rem;
+}
+.footer-brand img,
+.footer-logo-img{
+    transform:scale(1.15);
+    transform-origin:left center;
+}
+.security-card,
+.info-card,
+.work-card,
+.project-card{
+    transition:transform .25s ease, box-shadow .25s ease;
+}
+.security-card:hover,
+.info-card:hover,
+.work-card:hover,
+.project-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 24px rgba(0,0,0,.25);
+}
+.contact-form,
+.contact-grid{
+    gap:2rem;
+}
+html{
+    scroll-behavior:smooth;
+}
+body{
+    animation: pageFade .35s ease;
+}
+@keyframes pageFade{
+    from{opacity:0}
+    to{opacity:1}
+}

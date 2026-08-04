@@ -153,3 +153,8 @@ tenders@setterindustries.co.uk
 Website
 
 https://setterindustries.co.uk
+
+
+## Branding assets
+
+Favicon assets and the web app manifest are stored in `assets/favicon/`. The browser-tab icon is generated from the Setter Industries standalone logo.
